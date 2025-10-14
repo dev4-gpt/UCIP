@@ -95,6 +95,8 @@ Thumbs.db
 *.key
 secrets/
 credentials/
+key.pub
+key
 
 # Temporary files
 tmp/

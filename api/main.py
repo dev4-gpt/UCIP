@@ -1,4 +1,11 @@
-"""Main FastAPI application."""
+"""
+Main FastAPI application for UCIP - Urban Carbon Intelligence Platform
+
+🚀 Quick Access:
+- API Docs: http://localhost:8000/docs
+- Health Check: http://localhost:8000/health
+- Dashboard: http://localhost:3000
+"""
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -29,6 +36,10 @@ async def lifespan(app: FastAPI):
     """Lifespan context manager for startup/shutdown."""
     # Startup
     logger.info("Starting UCIP API...")
+    logger.info("🚀 UCIP API is now running!")
+    logger.info("📚 API Documentation: http://localhost:8000/docs")
+    logger.info("🏥 Health Check: http://localhost:8000/health")
+    logger.info("📊 Dashboard: http://localhost:3000")
     # Initialize connections, load models, etc.
     yield
     # Shutdown

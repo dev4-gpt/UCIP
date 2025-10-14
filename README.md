@@ -8,6 +8,28 @@ An **open-source, zero-budget MVP** designed for the **NittanyAI Challenge**, en
 
 ---
 
+## 🚀 Quick Start
+
+### Start Services
+```bash
+# Start infrastructure
+docker-compose up -d
+
+# Start API
+cd api && uvicorn main:app --reload --port 8000
+
+# Start Dashboard
+cd dashboard && npm run dev
+```
+
+### Access URLs
+- **🏥 API Health**: http://localhost:8000/health
+- **📚 API Docs**: http://localhost:8000/docs
+- **📊 Dashboard**: http://localhost:3000
+- **🤖 AI Assistant**: Available in dashboard
+
+---
+
 ## 🚀 Vision
 
 UCIP empowers planners, sustainability officers, and researchers to:
