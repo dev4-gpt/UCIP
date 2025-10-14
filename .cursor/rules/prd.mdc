@@ -1,0 +1,320 @@
+---
+alwaysApply: true
+# Urban Carbon Intelligence MVP — Product Requirements Document (PRD)
+
+## 1. **Overview and Vision**
+Urban Carbon Intelligence is an AI-powered platform for cities and campuses to **measure, forecast, and reduce carbon emissions**. It fuses real-time satellite, sensor, and policy data into actionable dashboards and tools for planners, policymakers, and citizens.
+
+## 2. **Target Audience**
+- Urban planners, city governments, sustainability officers
+- Environmental engineers, NGOs, campus climate leaders
+- Engaged citizens, energy managers, investors
+
+## 3. **Impact and End Goal**
+- Evidence-based emissions policy and intervention
+- Dynamic mapping and forecasting of emissions hotspots by sector
+- Policy simulation for pre-deployment evaluation
+- Engaged stakeholders via user-friendly tools
+- Accelerated progress toward net-zero, with measurable impact
+
+## 4. **System Architecture & Flow**
+
+**High-Level Steps:**
+1. **Ingestion:** Satellite feeds (GEE/AlphaEarth), city sensor APIs, Climate TRACE → ETL pipeline
+2. **Feature Store:** Data stored as tiles + embeddings (geospatial, tabular, textual) in Redis, MinIO, PostGIS
+3. **Models:**
+   - **Computer Vision (CV):** Segments and quantifies urban features and activity
+   - **ML/Time Series:** Forecasts sectoral emissions trends
+   - **NLP:** Extracts, embeds, and analyzes policy documents for compliance/simulation
+4. **Fusion:** CV + ML outputs fused with NLP policy embeddings for risk/hotspot scoring
+5. **API Layer:** FastAPI/GraphQL for ML inference, policy query, semantic search
+6. **User Apps:** Dashboard, mobile visualizations, chatbot, alerts
+7. **Ops:** CI/CD (Docker, Compose), CodeCarbon tracker, MLflow registry, model drift tracking, monitoring
+
+**Mermaid Diagram:**
+```mermaid
+flowchart TD
+  A["Satellite feeds (GEE / AlphaEarth embeddings)"] --> B["Ingestion & ETL"]
+  C["City sensors, OSM, Traffic APIs"] --> B
+  D["Climate TRACE / CarbonMonitor"] --> B
+  B --> E["Feature Store (tiles + embeddings)"]
+  E --> F{"Models"}
+  F --> F1["CV: segmentation (buildings / roads / traffic heatmaps)"]
+  F --> F2["MLP / TS: emissions forecasting per sector"]
+  F --> F3["NLP: policy doc extraction"]
+  F1 --> G["Fusion & Hotspot Scoring"]
+  F2 --> G
+  F3 --> H["Policy Impact Simulator"]
+  G --> I["API Layer"]
+  I --> J["Dashboard / Mobile"]
+  I --> K["Alerts & Integrations"]
+  K --> L["City Planner, Citizens"]
+
+  subgraph Ops
+    M["CI/CD"] --> N["CodeCarbon monitoring"]
+    O["Model monitoring & drift detection"]
+  end
+
+  I --> O
+  M --> N
+```
+
+## 5. **Database and Storage Design**
+- **Feature Store:** Redis (fast ML feature access), MinIO (object/tiles), PostGIS (spatial joins)
+- **Document/Embedding Storage:** Milvus/FAISS for vector similarity search
+- **Model Management:** MLflow registry
+- **Data Lake:** S3-compatible blob for raw/processed data
+
+## 6. **Repo Structure Example**
+```plaintext
+urban-carbon-intelligence/
+├── ingestion/
+│   ├── etl.py
+│   ├── satellite_api.py
+│   └── sensor_api.py
+├── features/
+│   ├── tiler.py
+│   ├── embedders/
+│   │    ├── cv_features.py
+│   │    ├── ts_features.py
+│   │    └── nlp_embeddings.py
+├── models/
+│   ├── cv/
+│   │    └── segmentation.py
+│   ├── ts/
+│   │    └── emissions_forecast.py
+│   └── nlp/
+│        └── policy_parser.py
+├── api/
+│   ├── main.py
+│   └── routes.py
+├── dashboard/
+│   └── app.py
+├── ops/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── monitoring/
+│       ├── codecarbon_tracker.py
+│       └── drift_detection.py
+├── tests/
+└── README.md
+```
+
+## 7. **Core Components and Algorithms**
+
+### A. **CV/Remote Sensing Module**
+- **Inputs:** Satellite (GEE, AlphaEarth), drone/sensor images
+- **Features Extracted:**
+  - Building/roof segmentation (U-Net/SegFormer)
+  - Road/traffic extraction (YOLOv8/FastRCNN)
+  - NDVI for green/vegetative cover
+  - Urban heat mapping (thermal)
+  - **Industrial Emissions:** Smoke stack detection, plume analysis, CO₂/CH₄ quantification, emission surge tracking
+  - **Energy Infrastructure:** Solar/wind detection, charger locations
+  - **Resource/Waste:** Landfill, recycling, illegal dumping
+  - **Night-light analysis:** Proxy for energy consumption
+- **Outputs:** GeoJSONs & vector features for each urban object
+
+### B. **ML/Time Series Module**
+- **Inputs:** Enriched city, sensor, and satellite-derived features
+- **Features Extracted:**
+  - Hourly/daily CO₂ emissions estimates (by sector)
+  - Patterns/trends from traffic, temperature, energy proxies
+  - Air quality and pollutant mapping
+- **Algorithms:** LSTM, Prophet, ARIMA
+- **Connection:** Forecasts sectoral emissions, anomaly detection for hotspots
+
+### C. **NLP Policy Analysis Module**
+- **Inputs:** City/campus policy docs, regulatory updates
+- **Features Extracted:**
+  - Named entities: emission targets, policy actions, compliance dates
+  - Semantic policy embeddings for similarity search
+  - Classifies policies as emission-reducing, status quo, or adverse
+- **LLMs/Models:** BERT/SAPBERT, Llama 3.1 8B, GPT-4 Turbo
+- **Connection:** Cross-links CV/ML outputs to policies for compliance simulation
+
+### D. **Fusion and Hotspot Scoring**
+- Combines spatial joins of CV/ML-inferred emissions with areas of regulatory non-compliance from NLP
+- Output: Priority-ranked hotspots, alert triggers
+
+### E. **API Layer**
+- FastAPI/GraphQL for predictions, embedding search, analytics
+- Endpoints for real-time inference, historical analytics, policy simulation
+
+### F. **User Dashboard & Chat**
+- React.js/Mapbox for maps, plotly for trends
+- Flutter for mobile alerts/visual summaries
+- Chatbot: Llama 3.1 8B or GPT-4 Turbo behind RAG pipeline over city embeddings
+
+## 8. **Expanded Feature Extraction for Carbon Reduction**
+
+### **Industrial Emissions**
+- Smoke stack detection, plume analysis, CO₂/CH₄ quantification, emission surge tracking
+- Real-time monitoring for compliance and accountability
+
+### **Building/Roof Segmentation**
+- Rooftop material classification (energy efficiency, solar suitability)
+- Building footprint for density, energy demand, retrofit targeting
+- Night-light analysis for energy waste
+
+### **Traffic and Transport**
+- Congestion analysis, vehicle density mapping, public transit vs. private vehicle distribution
+- Emissions hotspot targeting, smarter transit planning
+
+### **NDVI and Green Cover**
+- Carbon sequestration potential, green space reduction detection
+- Urban resilience and cooling
+
+### **Urban Heat Mapping**
+- Heat island identification, mitigation prioritization
+
+### **Air Quality and Pollutants**
+- Correlate air pollution events with emission sources
+- Inform health advisories, regulatory action
+
+### **Energy Infrastructure**
+- Solar/wind installations, charger locations, building energy rating
+
+### **Resource/Waste Management**
+- Landfill, recycling, illegal dumping detection
+
+## 9. **Why These Features Matter**
+- **Buildings/Roofs:** Target energy inefficiency, retrofits, solar expansion
+- **Traffic:** Reduce congestion, emissions hotspots, optimize transit
+- **Industry:** Enforce compliance, real-time tracking, leak prevention
+- **Green Cover:** Enhance sequestration, cooling, resilience
+- **Heat Maps:** Prioritize mitigation, adapt infrastructure
+- **Pollutants:** Health advisories, regulatory linkage
+
+## 10. **Measurement and Data Flows**
+- Ingestion → segmentation (CV) → emission feature creation → sectoral aggregation → forecasting (ML) → policy alignment/classification (NLP) → fused hotspot score → API → User App
+- ML time series includes policy events as features; policy impact simulated using fused embeddings
+
+## 11. **Most Critical Paths (MCPs)**
+- Data: Satellite/Sensor → Feature Store → Models → Fusion → API → Dash/Alert
+- Policy: Upload → NLP embedding → Vector store → Search/comparison
+
+## 12. **Rubrics Met & Selling Points**
+- **Innovation:** Hybrid AI (CV, NLP, TS, LLM) in real-time urban analytics
+- **Impact:** Shortens feedback loop for carbon policy, targets net-zero transition
+- **User Experience:** Engaging app/alerts, chat for non-technical users
+- **Technical Excellence:** MLflow, CodeCarbon, modern API, scalable cloud ops
+- **Scalability:** Modular, extensible for new geos, sensors, and policies
+- **Differentiation:** Automates “policy to action” simulation — not just monitoring, but recommending and testing interventions
+
+## 13. **Summary: Features at Every Step**
+- **Satellite:** Building/road/green area extraction, change detection
+- **Sensors:** Real-time traffic/energy anomalies
+- **Forecasting:** Sector and time-based emissions projections
+- **Policy Text:** Named entity extraction, compliance matching, “what if” simulation
+- **Fusion:** Maps, alerts, scoring, regulatory benchmarking
+- **User Tools:** Visual dashboards, mobile notifications, conversational agent
+
+## 14. **Final Solution/Goal**
+Deliver an end-to-end actionable AI system for city/campus leaders to:
+1. Understand baseline and real-time carbon emissions
+2. Simulate and deploy reduction interventions (policy, infrastructure)
+3. Engage the public for transparency and behavior change
+4. Continuously adapt using monitored feedback and ML/NLP insights
+
+## 15. **Security & Privacy**
+- All data in transit and at rest is encrypted (TLS/SSL, AES-256).
+- User authentication via OAuth2/JWT; role-based access for planners, admins, citizens.
+- Secure API endpoints with rate limiting, audit logging, and DDoS protection.
+- Compliance with local and international data privacy laws (GDPR, CCPA).
+
+## 16. **Accessibility**
+- Dashboards and apps designed for WCAG 2.1 compliance.
+- Multi-language support for global deployment.
+- Responsive design for desktop and mobile.
+- Alt text, keyboard navigation, and screen reader compatibility.
+
+## 17. **Deployment/Cloud**
+- Cloud-agnostic architecture; supports AWS, GCP, Azure, or on-prem.
+- Containerized via Docker, orchestrated with Kubernetes.
+- CI/CD pipelines for automated testing, deployment, and rollback.
+- Green hosting options prioritized to minimize platform footprint.
+
+## 18. **Data Provenance & Quality**
+- All ingested data sources tracked for provenance and versioning.
+- Automated data quality checks (missing data, outlier detection, schema validation).
+- Data lineage maintained for audit and reproducibility.
+- User-facing data quality indicators in dashboards.
+
+## 19. **User Feedback Loop**
+- In-app feedback forms for planners and citizens.
+- Crowdsourced corrections for map features and emissions estimates.
+- Feedback integrated into model retraining and dashboard updates.
+- Transparent changelog and update notifications.
+
+## 20. **Sustainability of the Platform**
+- CodeCarbon integrated for real-time platform carbon footprint tracking.
+- Green hosting and energy-efficient cloud resources.
+- Regular sustainability audits and public reporting.
+
+## 21. **Integration with Existing City Systems**
+- REST and GraphQL APIs for easy integration with city data lakes, GIS, and reporting tools.
+- Support for common formats (GeoJSON, CSV, Shapefile).
+- Webhooks and event-driven architecture for real-time updates.
+
+## 22. **Regulatory Compliance**
+- Alignment with GHG Protocol, ISO 14064, and local government standards.
+- Automated compliance reporting and exportable audit trails.
+- Policy simulation and benchmarking against regulatory targets.
+
+## 23. **Pennsylvania Scope & Phasing**
+- **Scope:** Statewide Pennsylvania coverage, with pilot deployments at Penn State campuses and early partner cities.
+- **Phases:**
+  0. Pilot: Penn State University Park + 2–3 Commonwealth campuses
+  1. City wave: Philadelphia, Pittsburgh, Erie, Allentown, Reading
+  2. County wave: County rollups and priority transportation corridors (I-76/I-80/I-81)
+  3. Statewide ops: Standardized APIs for municipalities, school districts, and MPOs
+- **MVP success (Challenge):** For each pilot campus, validate 1 building + 1 policy-driven intervention with measurable deltas in ≤14 days.
+
+## 24. **Pennsylvania Statewide Data Sources**
+- **Public/Open:**
+  - PennDOT traffic counts and corridor datasets; optional Waze CCP (if available)
+  - PA DEP emissions inventories, permits, and air monitoring networks
+  - Pennsylvania Open Data Portal (energy/environment datasets)
+  - PJM ISO (real-time grid mix, locational marginal emissions), EIA PA state energy data
+  - EPA AirNow/AQS, NOAA weather; NREL Cambium for marginal emissions factors
+  - NASA VIIRS night lights; Sentinel-2/Landsat 8/9; NAIP imagery
+  - City open data portals (Philadelphia, Pittsburgh): parcels/buildings, permits, sustainability indicators
+- **Private/Partner (as available):**
+  - PSU OPP building meters, schedules, and BAS exports; municipal energy dashboards
+  - Utility interval data via Green Button Connect or data-sharing agreements
+- **Licensing & Provenance:** Track dataset licenses/terms; maintain provenance and fallbacks for demos when partner feeds are unavailable.
+
+## 25. **Challenge MVP Slice (CV + NLP + TS + Chatbot)**
+- **CV (v1):** Use precomputed building footprints and night-light/land-use tiles; optional plume/heat proxies for demo illustrations
+- **Time Series (v1):** Baselines (Prophet/ARIMA) for after-hours electricity proxies; anomaly detection for hotspot alerts
+- **NLP (v1):** RAG over PSU/city policy docs; extract targets, allowed schedules, intervention constraints with citations
+- **Fusion (v1):** Map hotspots → policy-linked recommendations with expected savings heuristics and uncertainty bands
+- **Chatbot (v1):** Planner copilot answering where/why/what-if with citations and map links
+- **Demo arc:** Detect after-hours lighting hotspot in Building X → recommend schedule change → implement/proxy → show before/after trend with variance bands → auto-generate a compliance-ready report
+
+## 26. **Go-To-Market for PA & Success Metrics**
+- **Entry path:** PSU campuses → 5-city cohort → counties and school districts
+- **Stakeholders:** PSU Sustainability Institute/OPP, city sustainability offices, utilities, MPOs
+- **Distribution:** Web dashboard + API; ArcGIS/GeoJSON exports; email/webhook alerts; simple BAS integration hooks
+- **Proof metrics (Challenge):**
+  - Detect ≥3 actionable hotspots on campus
+  - Implement ≥1 intervention with ≥5–10% reduction in targeted proxy within 14 days
+  - Generate ≥1 compliance-ready report with citations
+  - Secure 1–2 partner letters of support (PSU/city/utility)
+- **Post-Challenge:** Convert to a paid pilot (one city or PSU unit); add utility data connector and expand to additional campuses/cities
+***
+
+**Use this PRD as your markdown rules and reference for building the MVP. Each section is structured for clarity, completeness, and direct implementation.**
+
+[1](https://www.irma-international.org/viewtitle/376126/?isxn=9798337320915)
+[2](https://www.netl.doe.gov/carbon-management/carbon-storage/strategic-program-support/best-practices-manuals)
+[3](https://plana.earth/academy/carbon-management)
+[4](https://learn.microsoft.com/en-us/azure/well-architected/sustainability/sustainability-security)
+[5](https://www.slb.com/resource-library/article/2025/laying-the-groundwork-for-carbon-storage-success)
+[6](https://www.nist.gov/publications/ig3is-urban-greenhouse-gas-emission-observation-and-monitoring-best-research-practices)
+[7](https://www.clarity.io/blog/what-are-the-best-practices-to-integrate-air-quality-sensor-data-with-city-level-gis-platforms-for-holistic-urban-air-quality-assessment)
+[8](https://urban-climate.org/wp-content/uploads/2024/06/GAW_275_en.pdf)
+[9](https://encinoenviron.com/emissions-monitoring-best-practices/)
+[10](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/114099916/df13b40f-1022-4417-ae5b-e43fbd3826e3/Urban-Carbon-Intelligence-PRD.pdf)
+---

@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+
+---
+title: Urban Carbon Intelligence Platform (UCIP)
+description: Full-stack open-source MVP scaffold for AI-powered carbon monitoring and policy simulation
+---
+
+# 🌍 Urban Carbon Intelligence Platform (UCIP)
+
+An **open-source, zero-budget MVP** designed for the **NittanyAI Challenge**, enabling real-time measurement, forecasting, and simulation of carbon emissions for **campuses and cities**.
+
+---
+
+## 🚀 Vision
+UCIP empowers planners, sustainability officers, and researchers to:
+- Measure emissions using **satellite EO + IoT + city data**
+- Forecast hotspots and **simulate policy interventions**
+- Generate explainable insights with **ethical, transparent AI**
+
+---
+
+## 🧩 Architecture Overview
+
+```mermaid
+flowchart LR
+  subgraph Ingest
+    A1[Sentinel-2 / Sentinel-5P] --> B[Preprocessing]
+    A2[City IoT / SmartMeters] --> B
+    A3[OpenStreetMap / Weather APIs] --> B
+  end
+
+  B --> C[Feature Store]
+  C --> D[Models: CV, NLP, Time Series]
+  D --> E[Fusion + Hotspot Detection]
+  E --> F[FastAPI Service]
+  F --> G[Dashboard / Chatbot / Alerts]
+
+  subgraph Ops
+    M[MLflow] --> D
+    N[CodeCarbon] --> D
+    O[Prometheus + Grafana] --> F
+  end
+---
